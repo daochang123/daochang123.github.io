@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="https://vibex.runninghub.cn/favicon.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>加密货币量化监控系统lite</title>
+    <script type="module" crossorigin src="/assets/index-DDDA-M18.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/index-Dzy6FtpV.css">
+  </head>
+  <body>
+    <div id="root"></div>
+    <script>
+      // GitHub Pages 镜像模式: 站点部署在 *.github.io 时, 数据改从随站发布的静态快照读取
+      // (主服务每小时操盘一轮后自动同步快照; 平台预览/发布形态下本脚本直接跳过, 零影响)
+      ;(function () {
+        if (!/(^|\.)github\.io$/.test(window.location.hostname)) return
+        // GitHub Pages 没有 SPA 回退: 深链接 404 时由随站副本把路径经 ?p=/xxx 弹回首页, 这里还原成真实路由
+        var q = window.location.search
+        if (q.indexOf("?p=") === 0) {
+          window.history.replaceState(null, "", decodeURIComponent(q.slice(3)))
+        }
+        var base = window.location.pathname.replace(/\/[^/]*$/, "/")
+        var orig = window.fetch
+        function qhash(s) {
+          var h = 5381
+          for (var i = 0; i < s.length; i++) { h = ((h << 5) + h + s.charCodeAt(i)) >>> 0 }
+          return h.toString(36)
+        }
+        function snapUrl(pathname, search) {
+          var name = String(pathname).replace(/^.*\/__pb\/api\//, "").replace(/\//g, "__")
+          if (search) { name += "__q" + qhash(search) }
+          return base + "data/" + name + ".json"
+        }
+        window.fetch = function (input, init) {
+          try {
+            var url = typeof input === "string" ? input : (input && input.url) || ""
+            if (url.indexOf("/__pb/api/") !== -1) {
+              var method = String((init && init.method) || (typeof input !== "string" && input && input.method) || "GET").toUpperCase()
+              var u = new URL(url, window.location.href)
+              // 交互类接口(手动催轮/演练/调参锁定/AI 对话等)在镜像站不可用, 统一返回只读提示
+              if (method !== "GET" || u.pathname.indexOf("/api/market/tick") !== -1 || u.pathname.indexOf("/api/sim/t") !== -1) {
+                return Promise.resolve(new Response(
+                  JSON.stringify({ ok: false, skipped: true, message: "镜像站为只读展示(数据每小时同步), 交互操作请到平台预览里进行" }),
+                  { status: 200, headers: { "Content-Type": "application/json" } }
+                ))
+              }
+              return orig.call(window, snapUrl(u.pathname, u.search), { method: "GET" })
+            }
+          } catch (e) { /* 解析失败走原始请求 */ }
+          return orig.apply(window, arguments)
+        }
+      })()
+    </script>
+  </body>
+</html>

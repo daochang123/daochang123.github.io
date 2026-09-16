@@ -1,0 +1,1 @@
+{"models":[{"max_tokens":4096,"model":"qwen3.7-plus","rh_model_id":"qwen/qwen3.7-plus","supports_temperature":true,"timeout_s":600}],"ok":true}
